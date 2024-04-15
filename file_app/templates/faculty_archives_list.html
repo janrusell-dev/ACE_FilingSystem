@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+
+</head>
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">FACULTY ARCHIVES</h1>
+    <p class="mb-4">CARLOS HILADO MEMORIAL STATE UNIVERSITY<a target="_blank" href="#"></a></p>
+
+    <!-- Data tables -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-secondary">Faculty Archive's List</h6>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Date Added</th>
+                            <th>Subject</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Campus</th>
+                            <th></th> <!-- New column for actions -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Sample data for demonstration purposes -->
+                        {% for faculty_doc in faculty_docs %}
+                        <tr>
+                            <td>{{faculty_doc.date_added}}</td>
+                            <td>{{faculty_doc.subject}}</td>
+                            <td>{{faculty_doc.faculty}}</td>
+                            <td>{{faculty_doc.department.name}}</td>
+                            <td>{{faculty_doc.campus.name}}</td>
+                            <td>
+                                <button class="btn btn-secondary btn-sm archive-faculty-btn" data-doc-id="{{ faculty_doc.id }}" data-image-url="{{ faculty_doc.upload_file.url }}" onclick="viewFacultyDocument(this)">
+                                    <i class="fas fa-eye">View</i> <!-- Archive icon -->
+                                </button>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    function viewFacultyDocument(button) {
+        var docId = button.getAttribute('data-doc-id');
+        var imageUrl = button.getAttribute('data-image-url');
+
+        // Update the UI to display the fetched image
+        if (imageUrl) {
+            // Assuming there's an image container with id="facultyImage"
+            $('#facultyImage').attr('src', imageUrl);
+        } else {
+            alert('Image URL not found.');
+        }
+    }
+</script>
+
+<!-- /.container-fluid -->
+{% endblock %}

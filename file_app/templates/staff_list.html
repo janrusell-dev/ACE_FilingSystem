@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+
+</head>
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">STAFF</h1>
+    <p class="mb-4">CARLOS HILADO MEMORIAL STATE UNIVERSITY<a target="_blank" href="#"></a></p>
+    <!-- Data tables -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-secondary">Staff Folder</h6>
+                <!-- Add Button -->
+                <button type="button" class="btn btn-dark mb-3" data-toggle="modal" data-target="#addStaffModal">
+                    <i class="fas fa-plus">Add Staff</i>
+                </button>
+
+                <!-- Bootstrap Modal for Add Faculty Form -->
+                <div class="modal fade" id="addStaffModal" tabindex="-1" role="dialog" aria-labelledby="addStaffModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addStaffModalLabel">Add Staff</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Add Faculty Form -->
+                                <form id="addStaffForm" method="POST" action="{% url 'staff_list' %}">
+                                    {% csrf_token %}
+                                    <!-- Your form fields go here -->
+                                    <div class="form-group">
+                                        <label for="firstName">First Name</label>
+                                        <input type="text" class="form-control" id="firstName" name="first_name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="middleName">Middle Name</label>
+                                        <input type="text" class="form-control" id="middleName" name="middle_name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name</label>
+                                        <input type="text" class="form-control" id="lastName" name="last_name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="suffixName">Suffix Name</label>
+                                        <input type="text" class="form-control" id="suffixName" name="suffix_name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="department">Department</label>
+                                        <select class="form-control" id="department" name="department" required>
+                                            <option value="">Select Department</option>
+                                            <!-- Add options dynamically based on your departments -->
+                                            {% for department in departments %}
+                                                <option value="{{ department.id }}">{{ department.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="campus">Campus</label>
+                                        <select class="form-control" id="department" name="campus" required>
+                                            <option value="">Select Campus</option>
+                                            <!-- Add options dynamically based on your departments -->
+                                            {% for campus in campuses %}
+                                                <option value="{{ campus.id }}">{{ campus.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <!-- Additional form fields if needed -->
+                                    <button type="submit" class="btn btn-dark">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Campus</th>
+                            <th></th> <!-- New column for actions -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Sample data for demonstration purposes -->
+                        {% for staff in staffs  %}
+                        <tr>
+                            <td><a href="#">{{ staff }}</a></td>
+                            <td>{{ staff.department.name }}</td>
+                            <th>{{ staff.campus.name }}</th>
+                            <td>
+                                <button class="btn btn-dark btn-sm edit-staff-btn" data-faculty-id="{{ staff.id }}">
+                                    <i class="fas fa-edit">Edit</i> <!-- Edit icon -->
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!-- /.container-fluid -->
+
+<!-- Include jQuery -->
+<script src="{% static 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        // Handle form submission for adding a faculty
+        $("#addStaffForm").submit(function (event) {
+            event.preventDefault();
+            var form = $(this);
+            $.ajax({
+                url: form.attr("action"),
+                type: form.attr("method"),
+                data: form.serialize(),
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        // Reload the page after successful form submission
+                        window.location.reload();
+                    } else {
+                        alert("Failed to add staff.");
+                    }
+                },
+                error: function () {
+                    alert("An error occurred while processing the request.");
+                }
+            });
+        });
+
+        // Handle faculty edit action using AJAX
+        $(".edit-staff-btn").click(function () {
+            var facultyId = $(this).data("staff-id");
+            var newStaffName = prompt("Enter the new staff name:");
+            if (newFStaffName !== null && newFacultyName.trim() !== "") {
+                $.ajax({
+                    url: window.location.href,  // Send to the same URL
+                    type: "POST",
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                        edit_faculty: true,
+                        faculty_id: facultyId,
+                        new_faculty_name: newFacultyName.trim()
+                    },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            // Reload the page after successful edit
+                            window.location.reload();
+                        } else {
+                            alert("Failed to edit faculty name.");
+                        }
+                    },
+                    error: function () {
+                        alert("An error occurred while processing the request.");
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+{% endblock content %}

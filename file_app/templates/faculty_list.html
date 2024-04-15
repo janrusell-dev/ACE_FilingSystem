@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+
+</head>
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">FACULTY</h1>
+    <p class="mb-4">CARLOS HILADO MEMORIAL STATE UNIVERSITY<a target="_blank" href="#"></a></p>
+    <!-- Data tables -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-secondary">Faculty Folder</h6>
+                <!-- Add Button -->
+                <button type="button" class="btn btn-dark mb-3" data-toggle="modal" data-target="#addFacultyModal">
+                    <i class="fas fa-plus">Add Faculty</i>
+                </button>
+
+                <!-- Bootstrap Modal for Add Faculty Form -->
+                <div class="modal fade" id="addFacultyModal" tabindex="-1" role="dialog" aria-labelledby="addFacultyModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addFacultyModalLabel">Add Faculty</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Add Faculty Form -->
+                                <form id="addFacultyForm" method="POST" action="{% url 'faculty_list' %}">
+                                    {% csrf_token %}
+                                    <!-- Your form fields go here -->
+                                    <div class="form-group">
+                                        <label for="firstName">First Name</label>
+                                        <input type="text" class="form-control" id="firstName" name="first_name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="middleName">Middle Name</label>
+                                        <input type="text" class="form-control" id="middleName" name="middle_name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name</label>
+                                        <input type="text" class="form-control" id="lastName" name="last_name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="suffixName">Suffix Name</label>
+                                        <input type="text" class="form-control" id="suffixName" name="suffix_name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="department">Department</label>
+                                        <select class="form-control" id="department" name="department" required>
+                                            <option value="">Select Department</option>
+                                            <!-- Add options dynamically based on your departments -->
+                                            {% for department in departments %}
+                                                <option value="{{ department.id }}">{{ department.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="campus">Campus</label>
+                                        <select class="form-control" id="campus" name="campus" required>
+                                            <option value="">Select Campus</option>
+                                            <!-- Add options dynamically based on your departments -->
+                                            {% for campus in campuses %}
+                                                <option value="{{ campus.id }}">{{ campus.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <!-- Additional form fields if needed -->
+                                    <button type="submit" class="btn btn-dark">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Campus</th>
+                            <th></th> <!-- New column for actions -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Sample data for demonstration purposes -->
+                        {% for faculty in faculties  %}
+                        <tr>
+                            <td>{{ faculty }}</a></td>
+                            <td>{{ faculty.department.name }}</td>
+                            <th>{{ faculty.campus.name }}</th>
+                            <td>
+                                 <a href="{% url 'edit_faculty' faculty.id %}">Edit Faculty</a>
+                               <a href="{% url 'delete_faculty' faculty.id %}">Delete Faculty</a>
+                                  <button class="btn btn-primary btn-sm edit-faculty-btn" data-faculty-id="{{ faculty.id }}" data-toggle="modal" data-target="#editFacultyModal">Edit</button>
+                                 <button class="btn btn-danger btn-sm delete-faculty-btn" data-faculty-id="{{ faculty.id }}" data-toggle="modal" data-target="#deleteFacultyModal">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+  <!-- Edit Faculty Modal -->
+<div class="modal fade" id="editFacultyModal" tabindex="-1" role="dialog" aria-labelledby="editFacultyModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editFacultyModalLabel">Edit Faculty</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+                <div class="modal-body">
+                    <form id="editFacultyForm" data-faculty-id="" method="POST" action="{% url 'edit_faculty' pk=0 %}">
+                        {% csrf_token %}
+                        <!-- Your form fields for editing faculty go here -->
+                        {{form.as_p}}
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="deleteFacultyModal" tabindex="-1" role="dialog" aria-labelledby="deleteFacultyModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteFacultyModalLabel">Delete Faculty</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this faculty?</p>
+                    <form id="deleteFacultyForm" data-faculty-id="" method="POST" action="{% url 'delete_faculty' pk=0 %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- /.container-fluid -->
+
+<!-- Include jQuery -->
+<script src="{% static 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        // Handle form submission for adding a faculty
+        $("#addFacultyForm").submit(function (event) {
+            event.preventDefault();
+            var form = $(this);
+            $.ajax({
+                url: form.attr("action"),
+                type: form.attr("method"),
+                data: form.serialize(),
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        // Reload the page after successful form submission
+                        window.location.reload();
+                    } else {
+                        alert("Failed to add faculty.");
+                    }
+                },
+                error: function () {
+                    alert("An error occurred while processing the request.");
+                }
+            });
+        });
+
+         // Edit Faculty Modal
+         $('#editFacultyModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var facultyId = button.data('faculty-id'); // Extract faculty ID from data attribute
+            var modal = $(this);
+            modal.find('#editFacultyForm').attr('action', '{% url "edit_faculty" 0 %}'.replace('0', facultyId)); // Update form action URL
+        });
+
+       // Update data-faculty-id attribute when delete modal is shown
+$('#deleteFacultyModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var facultyId = button.data('faculty-id');
+    $(this).find('#deleteFacultyForm').attr('data-faculty-id', facultyId);
+});
+
+// Handle delete faculty action using AJAX
+$('#deleteFacultyForm').submit(function (event) {
+    event.preventDefault();
+    var form = $(this);
+    var facultyId = form.attr('data-faculty-id');
+    $.ajax({
+        url: form.attr('action').replace('0', facultyId),
+        type: form.attr('method'),
+        data: form.serialize(),
+        dataType: 'json',
+        success: function (response) {
+            if (response.success) {
+                $('#deleteFacultyModal').modal('hide');  // Hide the modal
+                // Optionally, update the faculty list without reloading the page
+                // Example: $('#facultyListContainer').load(window.location.href + ' #facultyListContainer');
+                alert('Faculty deleted successfully.');
+                // Reload the page after successful deletion (optional)
+                window.location.reload();
+            } else {
+                alert('Failed to delete faculty.');
+            }
+        },
+        error: function () {
+            alert('An error occurred while processing the request.');
+        }
+    });
+});
+});
+</script>
+
+{% endblock content %}

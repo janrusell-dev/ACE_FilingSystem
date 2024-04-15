@@ -1,0 +1,8 @@
+{
+    "workbench.settings.editor": "ui",
+    "editor.fontLigatures": false,
+    "python.analysis.addImport.exactMatchOnly": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.fixAll": [],
+    "python.globalModuleInstallation": true
+}

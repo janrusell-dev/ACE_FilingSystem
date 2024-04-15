@@ -1,0 +1,256 @@
+    {% extends "base.html" %}
+    {% load static %}
+    {% block content %}
+
+    <!-- Begin Page Content -->
+    <div class="container-fluid">
+        <a href="#">sdfdsfds</a>
+        <!-- Page Heading -->
+        <h1 class="h3 mb-2 text-gray-800">ADD DOCUMENT</h1>
+        <p class="mb-4">CARLOS HILADO MEMORIAL STATE UNIVERSITY<a target="_blank" href="#"></a></p>
+        <!-- Data tables -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Add Button -->
+                    <button type="button" class="btn btn-info mb-3" onclick="scanToJpg();">
+                        <i class="fas fa-qrcode">Scan</i>
+                    </button>
+                    <button type="button" class="btn btn-info mb-3" data-toggle="modal" data-target="#addFacultyDocumentModal">
+                        <i class="fas fa-plus">Upload Faculty Document</i>
+                    </button>
+                    <button type="button" class="btn btn-info mb-3" data-toggle="modal" data-target="#addStaffDocumentModal">
+                        <i class="fas fa-plus">Upload Staff Document</i>
+                    </button>
+
+                <!-- Bootstrap Modal for Add Faculty Document Form -->
+            <div class="modal fade" id="addFacultyDocumentModal" tabindex="-1" role="dialog" aria-labelledby="addFacultyDocumentModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFacultyDocumentModalLabel">Add Faculty Document</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Add Faculty Form -->
+                <form id="addFacultyDocumentForm" method="POST" action="{% url 'faculty_archives_list' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <textarea class="form-control" id="subject" name="subject" rows="5"></textarea>
+                    </div>
+                    <!-- Your form fields go here -->
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <select class="form-control" id="department" name="department" required>
+                            <option value="">Select Department</option>
+                            <!-- Add options dynamically based on your departments -->
+                            {% for department in departments %}
+                                <option value="{{ department.id }}">{{ department.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="faculty">Name</label>
+                        <select class="form-control" id="faculty" name="faculty" required>
+                            <option value="">Select Faculty</option>
+                            <!-- Add options dynamically based on your departments -->
+                            {% for faculty in faculties %}
+                                <option value="{{ faculty.id }}">{{ faculty }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div id="fileUploadContainer">
+                        <label for="fileUpload">Upload Files</label>
+                        <div id="fileInputs">
+                            <!-- Initially one file input -->
+                            <div class="file-input">
+                                <input type="file" name="file_upload[]" multiple required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <br>
+                            <button type="button" class="btn btn-secondary" id="addFileInput"><i class="fas fa-plus"></i></button>
+                            <button type="button" class="btn btn-danger" id="removeFileInput" style="display:none;"><i class="fas fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="campus">Campus</label>
+                        <select class="form-control" id="campus" name="campus" required>
+                            <option value="">Select Campus</option>
+                            <!-- Add options dynamically based on your departments -->
+                            {% for campus in campuses %}
+                                <option value="{{ campus.id }}">{{ campus.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <!-- Additional form fields if needed -->
+                        <button type="submit" class="btn btn-dark">Submit</button>
+                        </form>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scan Button -->
+    <div style="position: fixed; bottom: 100px; right: 20px;">
+        <button id="scanButton" class="btn btn-dark btn-circle btn-lg">
+            <i class="fas fa-bars"></i>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="#">
+                    <i class="fas fa-file-upload fa-lg mr-2"></i> Upload Files
+                </a>
+                <a class="dropdown-item" href="#">
+                    <i class="fas fa-folder-open fa-lg mr-2"></i> Create Folder
+                </a>
+                <a class="dropdown-item" href="#">
+                    <i class="fas fa-download fa-lg mr-2"></i> Download Files
+                </a>
+                <a class="dropdown-item" href="#">
+                    <i class="fas fa-trash-alt fa-lg mr-2"></i> Delete Files
+                </a>
+                <!-- Add more dropdown items as needed -->
+            </div>
+    </div>
+    </div>
+    <!-- /.container-fluid -->
+    <!-- Include jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.asprise.com/scannerjs/scanner.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(function () {
+            // Handle form submission for adding a faculty
+            $("#addFacultyDocumentForm").submit(function (event) {
+                event.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr("action"),
+                    type: form.attr("method"),
+                    data: form.serialize(),
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            // Reload the page after successful form submission
+                            window.location.reload();
+                        } else {
+                            alert("Failed to add faculty document.");
+                        }
+                    },
+                    error: function () {
+                        alert("An error occurred while processing the request.");
+                    }
+                });
+            });
+        });
+
+
+
+        /** Initiates a scan */
+        function scanToJpg() {
+            scanner.scan(displayImagesOnPage,
+                    {
+                        "output_settings": [
+                            {
+                                "type": "return-base64",
+                                "format": "jpg"
+                            }
+                        ]
+                    }
+            );
+        }
+
+        /** Processes the scan result */
+        function displayImagesOnPage(successful, mesg, response) {
+            if(!successful) { // On error
+                console.error('Failed: ' + mesg);
+                return;
+            }
+
+            if(successful && mesg != null && mesg.toLowerCase().indexOf('user cancel') >= 0) { // User cancelled.
+                console.info('User cancelled');
+                return;
+            }
+
+            var scannedImages = scanner.getScannedImages(response, true, false); // returns an array of ScannedImage
+            for(var i = 0; (scannedImages instanceof Array) && i < scannedImages.length; i++) {
+                var scannedImage = scannedImages[i];
+                processScannedImage(scannedImage);
+            }
+
+            var scannedImages = scanner.getScannedImages(response, true, false); // returns an array of ScannedImage
+            for(var i = 0; (scannedImages instanceof Array) && i < scannedImages.length; i++) {
+                var scannedImage = scannedImages[i];
+                processScannedImage(scannedImage);
+            }
+
+            // Create a download link for the scanned image
+            if (imagesScanned.length > 0) {
+                var downloadLink = document.createElement('a');
+                downloadLink.href = imagesScanned[0].src; // Assuming only one image scanned
+                downloadLink.download = 'scanned_image.jpg';
+                downloadLink.click();
+            }
+        }
+
+        /** Images scanned so far. */
+        var imagesScanned = [];
+
+        /** Processes a ScannedImage */
+        function processScannedImage(scannedImage) {
+            imagesScanned.push(scannedImage);
+            var elementImg = scanner.createDomElementFromModel( {
+                'name': 'img',
+                'attributes': {
+                    'class': 'scanned',
+                    'src': scannedImage.src
+                }
+            });
+            document.getElementById('images').appendChild(elementImg);
+        }
+
+        document.getElementById('addFileInput').addEventListener('click', function () {
+            addFileInput();
+        });
+
+        document.getElementById('removeFileInput').addEventListener('click', function () {
+            removeFileInput();
+        });
+
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.classList.contains('remove-file')) {
+                e.target.parentElement.remove();
+                updateRemoveButtonVisibility();
+            }
+        });
+
+        function addFileInput() {
+            var fileInputs = document.getElementById('fileInputs');
+            var newFileInput = document.createElement('div');
+            newFileInput.className = 'file-input';
+            newFileInput.innerHTML = '<input type="file" name="file_upload[]" multiple required>';
+            fileInputs.appendChild(newFileInput);
+            updateRemoveButtonVisibility();
+        }
+
+        function removeFileInput() {
+            var fileInputs = document.getElementById('fileInputs');
+            var fileInputCount = fileInputs.children.length;
+            if (fileInputCount > 1) {
+                fileInputs.removeChild(fileInputs.lastChild);
+                updateRemoveButtonVisibility();
+            }
+        }
+
+        function updateRemoveButtonVisibility() {
+            var fileInputCount = document.getElementById('fileInputs').children.length;
+            document.getElementById('removeFileInput').style.display = fileInputCount > 1 ? 'inline-block' : 'none';
+        }
+    </script>
+
+
+    {% endblock content %}

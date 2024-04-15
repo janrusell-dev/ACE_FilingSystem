@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+    <!-- Custom styles for this page -->
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+
+</head>
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">DEPARTMENTS</h1>
+    <p class="mb-4">CARLOS HILADO MEMORIAL STATE UNIVERSITY<a target="_blank" href="#"></a></p>
+
+    <!-- Data tables -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-secondary">List of Departments</h6>
+               <!-- Add Button -->
+    <button type="button" class="btn btn-dark mb-3" data-toggle="modal" data-target="#addDepartmentModal">
+    <i class="fas fa-plus">Add Department</i>
+    </button>
+
+<!-- Bootstrap Modal for Add Department Form -->
+<div class="modal fade" id="addDepartmentModal" tabindex="-1" role="dialog" aria-labelledby="addDepartmentModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addDepartmentModalLabel">Add Department</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Add Department Form -->
+                <form id="addDepartmentForm" method="POST" action="{% url 'department_list' %}">
+                    {% csrf_token %}
+                    <!-- Your form fields go here -->
+                    <div class="form-group">
+                        <label for="departmentCode">Department Code</label>
+                        <input type="text" class="form-control" id="departmentCode" name="code" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="departmentName">Department Name</label>
+                        <input type="text" class="form-control" id="departmentName" name="name" required>
+                    </div>
+                    <button type="submit" class="btn btn-dark">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Department Code</th>
+                            <th>Department Name</th>
+                            <th>Total Faculty</th>
+                            <th>Total Staff</th>
+                            <th></th> <!-- New column for actions -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for department in departments %}
+                        <tr>
+                            <td>{{ department.code }}</td>
+                            <td>{{ department.name }}</td>
+                            <td>{{ department.faculty_count }}</td>
+                            <td>
+                                {{ department.staff_count }}
+                             </td>
+                            <td>
+                                <button class="btn btn-dark btn-sm edit-department-btn" data-department-id="{{ department.id }}">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /.container-fluid -->
+
+</div>
+<!-- End of Main Content -->
+<!-- Include jQuery -->
+<script src="{% static 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        // Handle form submission for adding a department
+        $("#addDepartmentForm").submit(function (event) {
+            event.preventDefault();
+            var form = $(this);
+            $.ajax({
+                url: form.attr("action"),
+                type: form.attr("method"),
+                data: form.serialize(),
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        // Reload the page after successful form submission
+                        window.location.reload();
+                    } else {
+                        alert("Failed to add department.");
+                    }
+                },
+                error: function () {
+                    alert("An error occurred while processing the request.");
+                }
+            });
+        });
+
+        // Handle department edit action using AJAX
+        $(".edit-department-btn").click(function () {
+            var departmentId = $(this).data("department-id");
+            var newDepartmentName = prompt("Enter the new department name:");
+            if (newDepartmentName !== null && newDepartmentName.trim() !== "") {
+                $.ajax({
+                    url: window.location.href,  // Send to the same URL
+                    type: "POST",
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                        edit_department: true,
+                        department_id: departmentId,
+                        new_department_name: newDepartmentName.trim()
+                    },
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            // Reload the page after successful edit
+                            window.location.reload();
+                        } else {
+                            alert("Failed to edit department.");
+                        }
+                    },
+                    error: function () {
+                        alert("An error occurred while processing the request.");
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+
+</body>
+
+</html>
+{% endblock content %}

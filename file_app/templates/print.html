@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print PDF Example</title>
+    <style>
+        @media print {
+            /* Styles for the printed document */
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+            }
+            .printable-content {
+                padding: 20px;
+            }
+            /* Add more styles as needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="printable-content">
+        <h1>Printable PDF Content</h1>
+        <p>This is an example of printable content.</p>
+        <!-- Add more content here -->
+    </div>
+
+    <button onclick="printPDF()">Print PDF</button>
+
+    <script>
+        function printPDF() {
+            window.print(); // Call the window.print() method to print the document
+        }
+    </script>
+</body>
+</html>

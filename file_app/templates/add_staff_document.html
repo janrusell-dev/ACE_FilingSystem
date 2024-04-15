@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">ADD DOCUMENT</h1>
+        <p class="mb-4">CARLOS HILADO MEMORIAL STATE UNIVERSITY<a target="_blank" href="#"></a></p>
+           <div class="card shadow mb-4">
+                <div class="card-header py-3">
+        <!-- Button trigger modal -->
+    <button   button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addStaffModal">
+  Add Staff Document
+        </button>
+
+<!-- Modal -->
+        <div class="modal fade" id="addStaffModal" tabindex="-1" role="dialog" aria-labelledby="addStaffModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                 <div class="modal-content">
+             <div class="modal-header">
+        <h5 class="modal-title" id="addStaffModalLabel">Add Staff Document</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="addStaffForm" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="id_subject">Subject:</label>
+            <textarea name="subject" id="id_subject" class="form-control" rows="4" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="id_file_upload">Upload File(s):</label>
+            <input type="file" name="file_upload" id="id_file_upload" class="form-control-file" multiple required>
+            <!-- Add validation feedback -->
+            <div class="invalid-feedback">
+                Please choose at least one file to upload.
+            </div>
+        </div>
+          <div class="form-group">
+            <label for="id_staff">Staff:</label>
+            <select name="staff" id="id_staff" class="form-control" required>
+              <option value="">Select Staff</option>
+              <!-- Add options dynamically based on your staff data -->
+              {% for staff in staffs %}
+              <option value="{{ staff.id }}">{{ staff }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="id_department">Department:</label>
+            <select name="department" id="id_department" class="form-control" required>
+              <option value="">Select Department</option>
+              <!-- Add options dynamically based on your department data -->
+              {% for department in departments %}
+              <option value="{{ department.id }}">{{ department.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="id_campus">Campus:</label>
+            <select name="campus" id="id_campus" class="form-control" required>
+              <option value="">Select Campus</option>
+              <!-- Add options dynamically based on your campus data -->
+              {% for campus in campuses %}
+              <option value="{{ campus.id }}">{{ campus.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    $("#addStaffForm").submit(function (e) {
+      e.preventDefault(); // Prevent the form from submitting normally
+      var formData = new FormData(this);
+      $.ajax({
+        url: "{% url 'add_staff_documents' %}",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (data) {
+          // Handle success response
+          alert("Staff document added successfully!");
+          $('#addStaffModal').modal('hide'); // Hide the modal after successful submission
+        },
+        error: function (xhr, status, error) {
+          // Handle error response
+          alert("Error: " + error);
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
