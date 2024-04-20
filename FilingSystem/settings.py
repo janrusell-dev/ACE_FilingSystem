@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'file_app.apps.FileAppConfig',
+    'multiupload',
+    'reportlab',
+
 
 ]
 
@@ -51,6 +54,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'file_app.middleware.SessionTimeoutMiddleware',
 ]
 
 ROOT_URLCONF = 'FilingSystem.urls'
@@ -126,16 +131,20 @@ USE_TZ = True
 STATIC_URL = 'static/'
 MEDIA_URL = 'images/'
 
+import os
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'static'
+   os.path.join(BASE_DIR, 'static'),
 ]
 
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-MEDIA_ROOT = BASE_DIR/ 'files'
+MEDIA_ROOT = BASE_DIR/ 'images'
 
 LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = 'index'
+SESSION_COOKIE_AGE = 28800
+
 
 
 # Default primary key field type

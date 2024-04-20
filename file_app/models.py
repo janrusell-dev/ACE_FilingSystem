@@ -66,7 +66,7 @@ class AddFacultyDocument(models.Model):
     faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.department} - {self.campus} - {self.date_added}"
+        return f"{self.subject} - {self.faculty} - {self.date_added}"
 
 class AddStaffDocument(models.Model):
     subject = models.TextField()
@@ -78,10 +78,15 @@ class AddStaffDocument(models.Model):
 
 
     def __str__(self):
-        return f"{self.department} - {self.campus} - {self.date_added}"
+        return f"{self.subject} - {self.staff} - {self.date_added}"
 
 
+class AddStaffDocImage(models.Model):
+    staff_doc = models.ForeignKey(AddStaffDocument, default=None, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='scans/')
 
+    def __str__(self):
+        return self.staff_doc.subject
 
 
 

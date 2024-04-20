@@ -25,7 +25,6 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th>Date Added</th>
                             <th>Subject</th>
                             <th>Name</th>
                             <th>Department</th>
@@ -37,15 +36,57 @@
                         <!-- Sample data for demonstration purposes -->
                         {% for doc in staff_docs %}
                         <tr>
-                            <td>{{ doc.date_added }}</td>
                             <td>{{ doc.subject }}</td>
                             <td>{{ doc.staff }}</td>
                             <td>{{ doc.department.name }}</td>
                             <td>{{ doc.campus.name }}</td>
                             <td>
-                                <button class="btn btn-secondary btn-sm archive-faculty-btn" data-toggle="modal" data-target="#documentViewerModal" onclick="setPDF('{{ doc.pdf_url }}')">
+                                <button class="btn btn-secondary btn-sm archive-faculty-btn" data-toggle="modal" data-target="#fileModal{{ doc.id }}">
                                     <i class="fas fa-eye"></i> View <!-- Archive icon -->
                                 </button>
+                       <!-- Modal -->
+                <div class="modal fade" id="fileModal{{ doc.id }}" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                       <div class="modal-content">
+                          <div class="modal-header">
+                      <h5 class="modal-title" id="fileModalLabel">Subject: {{ doc.subject }}
+                     <br>Name: {{ doc.staff }}
+                    <br>Department: {{ doc.department.name }}
+                         <br>Campus: {{ doc.staff.campus.name }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                              </button>
+                           </div>
+                        <div class="modal-body">
+                   <!-- If file_upload exists and has a file associated -->
+                {% if doc.file_upload and doc.file_upload.url %}
+            {% if doc.file_upload.url|slice:'-4:' == '.pdf' %}
+                  <!-- If PDF, embed using object tag -->
+            <object data="{{ doc.file_upload.url }}" type="application/pdf" width="100%" height="500px">
+                 <p>Your browser does not support PDFs. <a href="{{ doc.file_upload.url }}">Download PDF</a> instead.</p>
+                 </object>
+            {% else %}
+                  <!-- If image, display using img tag and provide download link -->
+         <img src="{{ doc.file_upload.url }}" class="img-fluid" alt="{{ doc.subject }}">
+            <div>
+                 <br>
+              <a href="{{ doc.file_upload.url }}" download="{{ doc.file_upload.name }}">Download</a>
+              </div>
+            {% endif %}
+        <div class="modal-footer">
+           {% if doc.file_upload.url|slice:'-4:' == '.pdf' %}
+        <!-- If PDF, show print button -->
+              <button type="button" class="btn btn-primary" onclick="printPDF('{{ doc.file_upload.url }}')">Print</button>
+                  {% endif %}
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                {% else %}
+                    <!-- Handle case where file_upload is empty -->
+                        <p>No file uploaded.</p>
+                            {% endif %}
+                         </div>
+                            </div>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -56,36 +97,11 @@
         </div>
     </div>
 </div>
-!-- Document Viewer Modal -->
-<div class="modal fade" id="documentViewerModal" tabindex="-1" role="dialog" aria-labelledby="documentViewerModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="documentViewerModalLabel">Document Viewer</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- PDF Viewer Embed -->
-                <embed src="" id="pdfViewer" type="application/pdf" width="100%" height="600px">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="printPDF()">Print</button>
-            </div>
-        </div>
-    </div>
-</div>
 <script>
-    function setPDF(pdfUrl) {
-        var pdfViewer = document.getElementById('pdfViewer');
-        pdfViewer.src = pdfUrl;
-    }
-
-    function printPDF() {
-        var pdfViewer = document.getElementById('pdfViewer');
-        pdfViewer.contentWindow.print();
+    function printPDF(pdfUrl) {
+        var win = window.open(pdfUrl, '_blank');
+        win.focus();
+        win.print();
     }
 </script>
 <!-- /.container-fluid -->

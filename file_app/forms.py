@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.widgets import ClearableFileInput
 
-from .models import Faculty, Department, Staff, AddFacultyDocument, AddStaffDocument
+from .models import Faculty, Department, Staff, AddFacultyDocument, AddStaffDocument, AddStaffDocImage
 
 
 class FacultyForm(forms.ModelForm):
@@ -37,16 +37,21 @@ class MultipleFileField(forms.FileField):
         return result
 
 
+
 class AddFacultyDocumentForm(forms.ModelForm):
+
     class Meta:
         model = AddFacultyDocument
         fields = ['subject', 'department', 'faculty', 'file_upload', 'campus']
 
 
 class AddStaffDocumentForm(forms.ModelForm):
-
-    class Meta:
+       class Meta:
         model = AddStaffDocument
         fields =  ['subject', 'department', 'staff', 'file_upload', 'campus']
-        file_field = MultipleFileField()
+
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=100)
+    password = forms.CharField(widget=forms.PasswordInput)
+
 

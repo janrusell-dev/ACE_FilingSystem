@@ -2,10 +2,6 @@
 {% load static %}
 {% block content %}
 
-    <!-- Custom styles for this page -->
-    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
-
-</head>
 
 <!-- Begin Page Content -->
 <div class="container-fluid">
@@ -17,7 +13,7 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <div class="d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-secondary">Faculty Folder</h6>
+                <h6 class="m-0 font-weight-bold text-secondary">Faculty List</h6>
                 <!-- Add Button -->
                 <button type="button" class="btn btn-dark mb-3" data-toggle="modal" data-target="#addFacultyModal">
                     <i class="fas fa-plus">Add Faculty</i>
@@ -161,7 +157,8 @@
 <!-- /.container-fluid -->
 
 <!-- Include jQuery -->
-<script src="{% static 'https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js' %}"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     $(document).ready(function () {
         // Handle form submission for adding a faculty
@@ -186,6 +183,7 @@
                 }
             });
         });
+    });
 
          // Edit Faculty Modal
          $('#editFacultyModal').on('show.bs.modal', function (event) {
@@ -203,33 +201,6 @@ $('#deleteFacultyModal').on('show.bs.modal', function (event) {
 });
 
 // Handle delete faculty action using AJAX
-$('#deleteFacultyForm').submit(function (event) {
-    event.preventDefault();
-    var form = $(this);
-    var facultyId = form.attr('data-faculty-id');
-    $.ajax({
-        url: form.attr('action').replace('0', facultyId),
-        type: form.attr('method'),
-        data: form.serialize(),
-        dataType: 'json',
-        success: function (response) {
-            if (response.success) {
-                $('#deleteFacultyModal').modal('hide');  // Hide the modal
-                // Optionally, update the faculty list without reloading the page
-                // Example: $('#facultyListContainer').load(window.location.href + ' #facultyListContainer');
-                alert('Faculty deleted successfully.');
-                // Reload the page after successful deletion (optional)
-                window.location.reload();
-            } else {
-                alert('Failed to delete faculty.');
-            }
-        },
-        error: function () {
-            alert('An error occurred while processing the request.');
-        }
-    });
-});
-});
 </script>
 
 {% endblock content %}

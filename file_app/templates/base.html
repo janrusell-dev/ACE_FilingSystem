@@ -17,15 +17,40 @@
     <link href='https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i'
         rel="stylesheet">
 
-
-
+    <link href="{% static 'css/loading.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="{% static 'js/reload_animation.js' %}"></script>
 
     <!-- Custom styles for this template-->
     <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
 
     <!-- Custom styles for this page -->
     <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+    <style>
 
+        .bg-green {
+            background-color: green !important;
+        }
+
+        .bg-blue {
+            background-color: #efdf10 !important;
+        }
+        .copyright {
+            color:  black !important; /* Set the font color to a light gray shade */
+        }
+        .nav-link {
+            color: black !important; /* Set navbar item text color to black */
+        }
+        .navbar-nav .active .nav-link {
+            color: green !important; /* Set active navbar item text color to white */
+        }
+        .navbar-nav .nav-link:hover {
+            color: green !important; /* Set navbar item text color to white on hover */
+        }
+        .collapse-item:hover{
+            color: green !important;
+        }
+    </style>
 </head>
 
 <body id="page-top">
@@ -35,14 +60,14 @@
 
         <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-muted sidebar sidebar-info accordion" id="accordionSidebar">
-
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'index' %}">
                 <div class="sidebar-brand-icon rotate-n-0">
                     <img src="{% static 'img/logo-chmsu.png' %}" alt="chsmu-logo" style="width: 40px; height: auto; background-color: transparent;">
                 </div>
-                <div class="sidebar-brand-text mx-3">Archives Filer<sup></sup></div>
+                <div class="sidebar-brand-text mx-3 text-black" style="color: #047a40 !important;">Archives Filer<sup></sup></div>
             </a>
+
 
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
@@ -64,13 +89,13 @@
                 <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
                     data-parent="#accordionSidebar">
                     <div class="py-1 collapse-inner rounded">
-                        <a class="collapse-item text-primary" href="{% url 'department_list' %}">
+                        <a class="collapse-item" href="{% url 'department_list' %}">
                             <i class="fas fa-building"></i> Department
                         </a>
-                        <a class="collapse-item text-primary" href="{% url 'faculty_list' %}">
+                        <a class="collapse-item" href="{% url 'faculty_list' %}">
                             <i class="fas fa-users"></i> Faculty
                         </a>
-                        <a class="collapse-item text-primary" href="{% url 'staff_list' %}">
+                        <a class="collapse-item" href="{% url 'staff_list' %}">
                             <i class="fas fa-users"></i> Staff
                         </a>
                     </div>
@@ -86,10 +111,10 @@
                 </a>
                 <div id="collapse" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="py-1 collapse-inner rounded">
-                        <a class = "collapse-item text-primary" href="{% url 'add_faculty_documents' %}">
+                        <a class = "collapse-item" href="{% url 'add_faculty_documents' %}">
                             <i class="fas fa-folder"></i> Faculty
                         </a>
-                        <a class = "collapse-item text-primary" href="{% url 'add_staff_documents' %}">
+                        <a class = "collapse-item" href="{% url 'add_staff_documents' %}">
                             <i class="fas fa-folder"></i> Staff
                         </a>
                     </div>
@@ -106,21 +131,14 @@
                 </a>
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="py-1 collapse-inner rounded">
-                        <a class = "collapse-item text-primary" href="{% url 'faculty_archives_list' %}">
+                        <a class = "collapse-item" href="{% url 'faculty_archives_list' %}">
                             <i class="fas fa-archive"></i> Faculty Archives
                         </a>
-                        <a class = "collapse-item text-primary" href="{% url 'staff_archives_list' %}">
+                        <a class = "collapse-item" href="{% url 'staff_archives_list' %}">
                             <i class="fas fa-archive"></i> Staff Archives
                         </a>
                     </div>
                 </div>
-            </li>
-
-            <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'scan_files' %}">
-                    <i class="fas fa-fw fa-download"></i>
-                    <span>Generate Reports</span></a>
             </li>
 
             <!-- Divider -->
@@ -138,7 +156,7 @@
         <div id="content-wrapper" class="d-flex flex-column">
 
             <!-- Topbar -->
-            <nav class="navbar navbar-expand navbar-light bg-info topbar mb-4 static-top shadow">
+            <nav class="navbar navbar-expand navbar-light bg-green topbar mb-4 static-top shadow">
                 	    <!-- Sidebar Toggle (Topbar) -->
                         <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                             <i class="fa fa-bars"></i>
@@ -156,13 +174,8 @@
                         <!-- Dropdown - User Information -->
                         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                             aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Settings
-                            </a>
-                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-black-400"></i>
                                 Logout
                             </a>
                         </div>
@@ -180,7 +193,7 @@
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <footer class="sticky-footer bg-warning">
+            <footer class="sticky-footer">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
                         <span>Copyright &copy; CHMSU - Records Management 2024</span>
@@ -206,15 +219,15 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Confirm Logout</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-body">Are you sure you want to log out? Click "Logout" below to end your current session.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                    <a class="btn btn-primary" href="{% url 'login' %}">Logout</a>
+                    <a class="btn btn-primary" href="{% url 'logout' %}">Logout</a>
                 </div>
             </div>
         </div>
@@ -230,12 +243,6 @@
 <!-- Custom scripts for all pages-->
 <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
 
-<!-- Page level plugins -->
-<script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
-
-<!-- Page level custom scripts -->
-<script src="{% static 'js/demo/chart-area-demo.js' %}"></script>
-<script src="{% static 'js/demo/chart-pie-demo.js' %}"></script>
 
 <!-- Page level plugins for DataTables -->
 <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
@@ -247,58 +254,6 @@
 
 
 
-
-<script>
-     /** Initiates a scan */
-     function scanToJpg() {
-        scanner.scan(displayImagesOnPage,
-                {
-                    "output_settings": [
-                        {
-                            "type": "return-base64",
-                            "format": "jpg"
-                        }
-                    ]
-                }
-        );
-    }
-
-    /** Processes the scan result */
-    function displayImagesOnPage(successful, mesg, response) {
-        if(!successful) { // On error
-            console.error('Failed: ' + mesg);
-            return;
-        }
-
-        if(successful && mesg != null && mesg.toLowerCase().indexOf('user cancel') >= 0) { // User cancelled.
-            console.info('User cancelled');
-            return;
-        }
-
-        var scannedImages = scanner.getScannedImages(response, true, false); // returns an array of ScannedImage
-        for(var i = 0; (scannedImages instanceof Array) && i < scannedImages.length; i++) {
-            var scannedImage = scannedImages[i];
-            processScannedImage(scannedImage);
-        }
-    }
-
-    /** Images scanned so far. */
-    var imagesScanned = [];
-
-    /** Processes a ScannedImage */
-    function processScannedImage(scannedImage) {
-        imagesScanned.push(scannedImage);
-        var elementImg = scanner.createDomElementFromModel( {
-            'name': 'img',
-            'attributes': {
-                'class': 'scanned',
-                'src': scannedImage.src
-            }
-        });
-        document.getElementById('images').appendChild(elementImg);
-    }
-
-</script>
 
 </body>
 

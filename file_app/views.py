@@ -1,29 +1,64 @@
 from .models import Department, Faculty, Campus, Staff, AddFacultyDocument, AddStaffDocument
+from django.utils import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .forms import FacultyForm, DepartmentForm, StaffForm,AddFacultyDocumentForm, AddStaffDocumentForm
+from .forms import FacultyForm, DepartmentForm, StaffForm,AddFacultyDocumentForm, AddStaffDocumentForm, LoginForm
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 
-def scan_document(request):
-    return render(request, 'scan.html')
 
 @login_required
 def login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('index')  # Redirect to the index page after successful login
+            else:
+                pass
+    else:
+        form = LoginForm()
     return render(request, 'login.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 @login_required
 def index(request):
     faculties = Faculty.objects.all()
     faculty_count = faculties.count()
+
     departments = Department.objects.all()
     department_count = departments.count()
+
     staffs = Staff.objects.all()
     staff_count = staffs.count()
+
+    faculty_documents_count = AddFacultyDocument.objects.count()
+    staff_documents_count = AddStaffDocument.objects.count()
+
+    total_files_count = (
+        AddFacultyDocument.objects.count()
+        + AddStaffDocument.objects.count()
+    )
+    recent_faculty_documents = AddFacultyDocument.objects.order_by('-date_added')[:10]
+    recent_staff_documents = AddStaffDocument.objects.order_by('-date_added')[:10]
+
     context = {'faculty_count': faculty_count,
                'department_count': department_count,
-               'staff_count': staff_count}
+               'staff_count': staff_count,
+               'total_files_count': total_files_count,
+                'recent_faculty_documents': recent_faculty_documents,
+             'recent_staff_documents': recent_staff_documents,
+              'faculty_documents_count': faculty_documents_count,
+              'staff_documents_count': staff_documents_count}
 
     return render(request, 'index.html', context)
 
@@ -38,7 +73,6 @@ def faculty_list(request):
         form = FacultyForm(request.POST)
         if form.is_valid():
             faculty = form.save()  # Save the form to create a Faculty instance
-            messages.success(request, 'Faculty added successfully.')
             return redirect('faculty_list')  # Redirect back to the faculty list page
     else:
         form = FacultyForm()
@@ -52,7 +86,8 @@ def faculty_list(request):
 
     return render(request, 'faculty_list.html', context)
 
-def edit_faculty(request, pk):
+@login_required
+def update_faculty(request, pk):
     faculty = get_object_or_404(Faculty, pk=pk)
     if request.method == 'POST':
         form = FacultyForm(request.POST, instance=faculty)
@@ -63,25 +98,9 @@ def edit_faculty(request, pk):
         form = FacultyForm(instance=faculty)
     context = {'form': form,
                'faculty': faculty}
-    return render(request, 'edit_faculty.html', context)
+    return render(request, 'update_faculty.html', context)
 
-def faculty_details(request, pk):
-    try:
-        faculty = Faculty.objects.get(pk=pk)
-        data = {
-            'success': True,
-            'faculty': {
-                'id': faculty.id,
-                'first_name': faculty.first_name,
-                # Add other faculty details here
-            }
-        }
-        return JsonResponse(data)
-    except Faculty.DoesNotExist:
-        data = {'success': False}
-        return JsonResponse(data)
-
-
+@login_required
 def delete_faculty(request, pk):
     faculty = get_object_or_404(Faculty, pk=pk)
     if request.method == 'POST':
@@ -116,6 +135,29 @@ def department_list(request):
 
     return render(request, 'department_list.html', context)
 
+
+@login_required
+def update_department(request, pk):
+    department = get_object_or_404(Department, pk=pk)
+
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST, instance=department)
+        if form.is_valid():
+            form.save()
+            return redirect('department_list')  # Redirect to department list page after editing
+    else:
+        form = DepartmentForm(instance=department)
+
+    return render(request, 'update_department.html', {'form': form})
+
+@login_required
+def delete_department(request, pk):
+    department = get_object_or_404(Department, pk=pk)
+    department.delete()
+    return JsonResponse({'success': True})
+
+
+@login_required
 def staff_list(request):
     staffs = Staff.objects.all()
     campuses = Campus.objects.all()
@@ -136,41 +178,31 @@ def staff_list(request):
                }
     return render(request, 'staff_list.html', context)
 
-
-
-
 @login_required
-def edit_department(request, pk):
-    department = get_object_or_404(Department, pk=pk)
-
+def update_staff(request, pk):
+    staff = get_object_or_404(Staff, pk=pk)
     if request.method == 'POST':
-        form = DepartmentForm(request.POST, instance=department)
+        form = StaffForm(request.POST, instance=staff)
         if form.is_valid():
             form.save()
-            return redirect('department_list')  # Redirect to department list page after editing
+            return redirect('staff_list')
     else:
-        form = DepartmentForm(instance=department)
+        form = FacultyForm(instance=staff)
+    context = {'form': form,
+               'staff': staff}
+    return render(request, 'edit_faculty.html', context)
 
-    return render(request, 'edit_department.html', {'form': form})
-
+@login_required
+def delete_staff(request, pk):
+    staff = get_object_or_404(Staff, pk=pk)
+    staff.delete()
+    return JsonResponse({'success': True})
 
 
 
 @login_required
-def faculty_archives_list(request):
-    faculty_docs = AddFacultyDocument.objects.all()
-    departments = Department.objects.all()
-    documents = AddFacultyDocument.objects.all()
-    campuses = Campus.objects.all()
-    context = {'departments': departments,
-                'campuses': campuses,
-                'documents': documents,
-                'faculty_docs': faculty_docs
-               }
-    return render(request, 'faculty_archives_list.html', context)
-
-
 def add_staff_document(request):
+    recent_document = AddStaffDocument.objects.order_by('-date_added')[:10]
     departments = Department.objects.all()
     campuses = Campus.objects.all()
     staffs = Staff.objects.all()
@@ -178,15 +210,8 @@ def add_staff_document(request):
     if request.method == 'POST':
         form = AddStaffDocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            # Save the form without committing to access the file field as a list
-            instance = form.save(commit=False)
-            files = request.FILES.getlist('file_upload')  # Get multiple files
-            for f in files:
-                # Assign each file to the instance's file_upload field
-                instance.file_upload = f
-                instance.save()
-            # Redirect or display a success message
-            return redirect('staff_archives_list')
+            form.save()
+            return redirect(request.path)
     else:
         form = AddStaffDocumentForm()
 
@@ -195,20 +220,22 @@ def add_staff_document(request):
         'departments': departments,
         'campuses': campuses,
         'staffs': staffs,
+        'recent_document': recent_document
     }
 
     return render(request, 'add_staff_document.html', context)
 
-
+@login_required
 def add_faculty_document(request):
     if request.method == 'POST':
         form = AddFacultyDocumentForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('faculty_archives_list')
+            return redirect(request.path)
     else:
         form = AddFacultyDocumentForm()
 
+    recent_document = AddFacultyDocument.objects.order_by('-date_added')
     departments = Department.objects.all()
     campuses = Campus.objects.all()
     faculties = Faculty.objects.all()
@@ -217,7 +244,8 @@ def add_faculty_document(request):
     context = {'departments': departments,
                'campuses': campuses,
                'faculties': faculties,
-               'form': form}
+               'form': form,
+               'recent_document': recent_document}
 
     return render(request, 'add_faculty_document.html', context)
 
@@ -233,5 +261,19 @@ def staff_archives_list(request):
     }
 
     return render(request, 'staff_archives_list.html', context)
+
+@login_required
+def faculty_archives_list(request):
+    faculty_docs = AddFacultyDocument.objects.all()
+    departments = Department.objects.all()
+    documents = AddFacultyDocument.objects.all()
+    campuses = Campus.objects.all()
+    context = {'departments': departments,
+                'campuses': campuses,
+                'documents': documents,
+                'faculty_docs': faculty_docs
+               }
+    return render(request, 'faculty_archives_list.html', context)
+
 
 

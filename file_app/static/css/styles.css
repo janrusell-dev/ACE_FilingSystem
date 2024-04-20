@@ -1,0 +1,21 @@
+/* styles.css */
+
+.heading-label {
+    background-color: #7c858d;
+    color: #fff;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.list-group-item {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+
+.list-group-item:hover {
+    background-color: #e9ecef;
+}
