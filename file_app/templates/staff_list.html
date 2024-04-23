@@ -103,9 +103,8 @@
                             <td>{{ staff.department.name }}</td>
                             <th>{{ staff.campus.name }}</th>
                             <td>
-                                <button class="btn btn-dark btn-sm edit-staff-btn" data-faculty-id="{{ staff.id }}">
-                                    <i class="fas fa-edit">Edit</i> <!-- Edit icon -->
-                                </button>
+                                <button class="btn btn-dark btn-sm edit-staff-btn" data-staff-id="{{ staff.id }}" data-toggle="modal" data-target="#editStaffModal-{{forloop.counter}}"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn btn-danger btn-sm delete-staff-btn" data-staff-id="{{ staff.id }}" data-toggle="modal" data-target="#deleteStaffModal-{{forloop.counter}}"> <i class="fas fa-trash"></i>Delete</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -114,13 +113,91 @@
                 </table>
             </div>
         </div>
+        <!-- Edit Staff Modal -->
+  {% for staff in staffs  %}
+  <div class="modal fade" id="editStaffModal-{{forloop.counter}}" tabindex="-1" role="dialog" aria-labelledby="editStaffModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="editStaffModalLabel">Edit Staff</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+                  <div class="modal-body">
+                      <form id="editStaffForm" method="POST" action="/staff/{{ staff.id }}/update">
+                          {% csrf_token %}
+                          <!-- Your form fields go here -->
+                          <div class="form-group">
+                              <label for="firstName">First Name</label>
+                              <input value="{{staff.first_name}}" type="text" class="form-control" id="firstName" name="first_name" >
+                          </div>
+                          <div class="form-group">
+                              <label for="middleName">Middle Name</label>
+                              <input value="{{staff.middle_name}}"type="text" class="form-control" id="middleName" name="middle_name">
+                          </div>
+                          <div class="form-group">
+                              <label for="lastName">Last Name</label>
+                              <input value="{{staff.last_name}}"type="text" class="form-control" id="lastName" name="last_name" >
+                          </div>
+                          <div class="form-group">
+                              <label for="suffixName">Suffix Name</label>
+                              <input {% if staff.suffix_name %}value="{{ staff.suffix_name }}"{% endif %} type="text" class="form-control" id="suffixName" name="suffix_name">
+                          </div>
+                          <div class="form-group">
+                              <label for="department">Department</label>
+                              <select class="form-control" id="department" name="department">
+                                  <option value="{{ staff.department.id }}">{{staff.department.name}}</option>
+                                  <!-- Add options dynamically based on your departments -->
+                                  {% for department in departments %}
+                                      <option value="{{ department.id }}">{{ department.name }}</option>
+                                  {% endfor %}
+                              </select>
+                          </div>
+                          <div class="form-group">
+                              <label for="campus">Campus</label>
+                              <select class="form-control" id="campus" name="campus" >
+                                  <option value="{{ staff.campus.id }}">{{staff.campus.name}}</option>
+                                  {% for campus in campuses %}
+                                      <option value="{{ campus.id }}">{{ campus.name }}</option>
+                                  {% endfor %}
+                              </select>
+                          </div>
+                          <button type="submit" class="btn btn-dark">Submit</button>
+                      </form>
+                  </div>
+              </div>
+          </div>
+      </div>
+    {% endfor %}
+    {% for s in staffs %}
+    <div class="modal fade" id="deleteStaffModal-{{forloop.counter}}" tabindex="-1" role="dialog" aria-labelledby="deleteStaffModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteStaffModalLabel">Delete Staff</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete {{s}}?</p>
+                    <form id="deleteStaffForm" data-faculty-id="{{f.id}}" method="POST" action="staff/{{s.id}}/delete">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+    {% endfor %}
 </div>
 </div>
 <!-- /.container-fluid -->
 
 <!-- Include jQuery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 <script>
     $(document).ready(function () {
         // Handle form submission for adding a faculty
@@ -145,37 +222,35 @@
                 }
             });
         });
+    });
 
-        // Handle faculty edit action using AJAX
-        $(".edit-staff-btn").click(function () {
-            var facultyId = $(this).data("staff-id");
-            var newStaffName = prompt("Enter the new staff name:");
-            if (newFStaffName !== null && newFacultyName.trim() !== "") {
-                $.ajax({
-                    url: window.location.href,  // Send to the same URL
-                    type: "POST",
-                    data: {
-                        csrfmiddlewaretoken: "{{ csrf_token }}",
-                        edit_faculty: true,
-                        faculty_id: facultyId,
-                        new_faculty_name: newFacultyName.trim()
-                    },
-                    dataType: "json",
-                    success: function (response) {
-                        if (response.success) {
-                            // Reload the page after successful edit
-                            window.location.reload();
-                        } else {
-                            alert("Failed to edit faculty name.");
-                        }
-                    },
-                    error: function () {
-                        alert("An error occurred while processing the request.");
-                    }
-                });
+    $("#editStaffForm").submit(function (event) {
+        event.preventDefault();
+        var form = $(this);
+        $.ajax({
+            url: form.attr("action"),
+            type: form.attr("method"),
+            data: form.serialize(),
+            dataType: "json",
+            success: function (response) {
+                alert(response);  // Success message
+                window.location.reload();  // Reload the page or perform other actions
+            },
+            error: function (xhr, status, error) {
+                if (xhr.status === 400) {
+                    alert(xhr.responseText);  // Display the validation error message
+                } else {
+                    alert("An error occurred while processing the request.");
+                }
             }
         });
     });
+    $('#deleteStaffModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+           var facultyId = button.data('staff-id');
+       $(this).find('#deleteStaffForm').attr('data-staff-id', staffId);
+       });
+
 </script>
 
 {% endblock content %}

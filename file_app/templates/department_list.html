@@ -2,11 +2,6 @@
 {% load static %}
 {% block content %}
 
-    <!-- Custom styles for this page -->
-    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
-
-</head>
-
 <!-- Begin Page Content -->
 <div class="container-fluid">
 
@@ -78,9 +73,8 @@
                                 {{ department.staff_count }}
                              </td>
                             <td>
-                                <button class="btn btn-dark btn-sm edit-department-btn" data-department-id="{{ department.id }}">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
+                                <button class="btn btn-dark btn-sm edit-department-btn" data-department-id="{{ department.id }}" data-toggle="modal" data-target="#editDepartmentModal-{{forloop.counter}}"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn btn-danger btn-sm delete-department-btn" data-department-id="{{ department.id }}" data-toggle="modal" data-target="#deleteDepartmentModal-{{forloop.counter}}"> <i class="fas fa-trash"></i>Delete</button>
                             </td>
                         </tr>
                         {% endfor %}
@@ -88,14 +82,65 @@
                 </table>
             </div>
         </div>
+         <!-- Edit Department Modal -->
+  {% for department in departments  %}
+  <div class="modal fade" id="editDepartmentModal-{{forloop.counter}}" tabindex="-1" role="dialog" aria-labelledby="editDepartmentModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="editDepartmentModalLabel">Edit Department</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+                  <div class="modal-body">
+                      <form id="editDepartmentForm" method="POST" action="/department/{{ department.id }}/update">
+                          {% csrf_token %}
+                          <!-- Your form fields go here -->
+                          <div class="form-group">
+                              <label for="departmentCode">Department Code</label>
+                              <input value="{{department.code}}" type="text" class="form-control" id="departmentCode" name="code" >
+                          </div>
+                          <div class="form-group">
+                              <label for="departmentName">Department Name</label>
+                              <input value="{{department.name}}"type="text" class="form-control" id="departmentName" name="name">
+                          </div>
+                          <button type="submit" class="btn btn-dark">Submit</button>
+                      </form>
+                  </div>
+              </div>
+          </div>
+      </div>
+    {% endfor %}
+    {% for d in departments %}
+    <div class="modal fade" id="deleteDepartmentModal-{{forloop.counter}}" tabindex="-1" role="dialog" aria-labelledby="deleteDepartmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteDepartmentModalLabel">Delete Department</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete {{d}}?</p>
+                    <form id="deleteDepartmentForm" data-department-id="{{d.id}}" method="POST" action="department/{{d.id}}/delete">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+    {% endfor %}
+
 <!-- /.container-fluid -->
 
 </div>
 <!-- End of Main Content -->
-<!-- Include jQuery -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
 <script>
     $(document).ready(function () {
         // Handle form submission for adding a department
@@ -120,41 +165,35 @@
                 }
             });
         });
+    });
 
-        // Handle department edit action using AJAX
-        $(".edit-department-btn").click(function () {
-            var departmentId = $(this).data("department-id");
-            var newDepartmentName = prompt("Enter the new department name:");
-            if (newDepartmentName !== null && newDepartmentName.trim() !== "") {
-                $.ajax({
-                    url: window.location.href,  // Send to the same URL
-                    type: "POST",
-                    data: {
-                        csrfmiddlewaretoken: "{{ csrf_token }}",
-                        edit_department: true,
-                        department_id: departmentId,
-                        new_department_name: newDepartmentName.trim()
-                    },
-                    dataType: "json",
-                    success: function (response) {
-                        if (response.success) {
-                            // Reload the page after successful edit
-                            window.location.reload();
-                        } else {
-                            alert("Failed to edit department.");
-                        }
-                    },
-                    error: function () {
-                        alert("An error occurred while processing the request.");
-                    }
-                });
+    $("#editDepartmentForm").submit(function (event) {
+        event.preventDefault();
+        var form = $(this);
+        $.ajax({
+            url: form.attr("action"),
+            type: form.attr("method"),
+            data: form.serialize(),
+            dataType: "json",
+            success: function (response) {
+                alert(response);  // Success message
+                window.location.reload();  // Reload the page or perform other actions
+            },
+            error: function (xhr, status, error) {
+                if (xhr.status === 400) {
+                    alert(xhr.responseText);  // Display the validation error message
+                } else {
+                    alert("An error occurred while processing the request.");
+                }
             }
         });
     });
+    $('#deleteDepartmentModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+           var facultyId = button.data('department-id');
+       $(this).find('#deleteDepartmentForm').attr('data-department-id', departmentId);
+       });
+
 </script>
 
-
-</body>
-
-</html>
 {% endblock content %}

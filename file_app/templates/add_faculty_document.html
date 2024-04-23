@@ -1,26 +1,5 @@
 {% extends "base.html" %}
 {% load static %}
-<style>
-  .btn-green {
-    background-color: #00ff00; /* Pure green color */
-    color: #ffffff; /* White text color */
-    border-color: #00ff00; /* Same color as background for border */
-}
-
-.btn-green:hover {
-    background-color: #00cc00; /* Darker green color on hover */
-    border-color: #00cc00; /* Same color as background for border on hover */
-}
-img.scanned {
-  height: 200px; /** Sets the display size */
-  margin-right: 12px;
-}
-
-div#images {
-  margin-top: 20px;
-}
-
-</style>
 {% block content %}
 <div class="container-fluid">
     <!-- Page Heading -->
@@ -32,12 +11,8 @@ div#images {
         <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#addFacultyModal">
           <i class="fas fa-plus"></i> Add Faculty Document
       </button>
-        <button id="scanButton" class="btn btn-dark" onclick="scanToJpg();">
-            <i class="fas fa-qrcode"> Scan</i>
-        </button>
         <hr>
-
-        <h2>Recently Added Faculty Documents</h2>
+        <h3>Recently Added Faculty Documents</h3>
         <div class="list-group" style="max-height: 200px; overflow-y: auto;">
               {% for document in recent_document %}
            <a href="{% url 'faculty_archives_list' %}" class="list-group-item list-group-item-action">
@@ -45,8 +20,7 @@ div#images {
             </a>
             {% endfor %}
           </div>
-
-<!-- Modal -->
+              <!-- Modal -->
         <div class="modal fade" id="addFacultyModal" tabindex="-1" role="dialog" aria-labelledby="addFacultyModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                  <div class="modal-content">
@@ -111,7 +85,6 @@ div#images {
 </div>
 </div>
 </div>
-
 <script>
   $(document).ready(function () {
     $("#addFacultyForm").submit(function (e) {
@@ -136,66 +109,4 @@ div#images {
     });
   });
 </script>
-<script src="https://cdn.asprise.com/scannerjs/scanner.js" type="text/javascript"></script>
-
-<script>
-        //
-        // Please read scanner.js developer's guide at: http://asprise.com/document-scan-upload-image-browser/ie-chrome-firefox-scanner-docs.html
-        //
-
-        /** Initiates a scan */
-        function scanToJpg() {
-            scanner.scan(displayImagesOnPage,
-                    {
-                        "output_settings": [
-                            {
-                                "type": "return-base64",
-                                "format": "jpg"
-                            }
-                        ]
-                    }
-            );
-        }
-
-        function displayImagesOnPage(successful, mesg, response) {
-          if (!successful) { // On error
-              console.error('Failed: ' + mesg);
-              return;
-          }
-
-          if (successful && mesg != null && mesg.toLowerCase().indexOf('user cancel') >= 0) { // User cancelled.
-              console.info('User cancelled');
-              return;
-          }
-
-          var scannedImages = scanner.getScannedImages(response, true, false); // returns an array of ScannedImage
-          if (scannedImages.length > 0) {
-              var scannedImage = scannedImages[0]; // Assuming only one image scanned
-              processScannedImage(scannedImage);
-
-              // Create a download link for the scanned image
-              var downloadLink = document.createElement('a');
-              downloadLink.href = scannedImage.src;
-              downloadLink.download = 'scanned_image.jpg'; // Set the download file name
-              downloadLink.style.display = 'none'; // Hide the download link
-              document.body.appendChild(downloadLink);
-              downloadLink.click(); // Trigger the download
-              document.body.removeChild(downloadLink); // Clean up the download link
-          }
-      }
-
-      /** Processes a ScannedImage */
-      function processScannedImage(scannedImage) {
-          var elementImg = scanner.createDomElementFromModel({
-              'name': 'img',
-              'attributes': {
-                  'class': 'scanned',
-                  'src': scannedImage.src
-              }
-          });
-          document.getElementById('images').appendChild(elementImg);
-      }
-
-    </script>
-
 {% endblock %}

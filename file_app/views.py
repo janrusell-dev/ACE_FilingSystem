@@ -21,7 +21,7 @@ def login(request):
                 login(request, user)
                 return redirect('index')  # Redirect to the index page after successful login
             else:
-                pass
+                return redirect('login')  # Redirect back to the login page with error message
     else:
         form = LoginForm()
     return render(request, 'login.html')
@@ -72,8 +72,8 @@ def faculty_list(request):
     if request.method == 'POST':
         form = FacultyForm(request.POST)
         if form.is_valid():
-            faculty = form.save()  # Save the form to create a Faculty instance
-            return redirect('faculty_list')  # Redirect back to the faculty list page
+            faculty = form.save()
+            return redirect(request.path)
     else:
         form = FacultyForm()
 
@@ -87,27 +87,27 @@ def faculty_list(request):
     return render(request, 'faculty_list.html', context)
 
 @login_required
-def update_faculty(request, pk):
-    faculty = get_object_or_404(Faculty, pk=pk)
-    if request.method == 'POST':
+def update_faculty(request, id):
+    faculty = get_object_or_404(Faculty, pk=id)
+    if request.method == "POST":
         form = FacultyForm(request.POST, instance=faculty)
         if form.is_valid():
             form.save()
             return redirect('faculty_list')
     else:
         form = FacultyForm(instance=faculty)
-    context = {'form': form,
-               'faculty': faculty}
-    return render(request, 'update_faculty.html', context)
+    return render(request, 'update_faculty.html', {'form': form, 'faculty': faculty})
 
 @login_required
-def delete_faculty(request, pk):
-    faculty = get_object_or_404(Faculty, pk=pk)
+def delete_faculty(request, id):
+    faculty = get_object_or_404(Faculty, id=id)
     if request.method == 'POST':
         faculty.delete()
         return redirect('faculty_list')
-    context = {'faculty': faculty}
-    return render(request, 'delete_faculty.html', context)
+
+
+    return redirect('faculty_list')
+
 
 
 
@@ -137,24 +137,26 @@ def department_list(request):
 
 
 @login_required
-def update_department(request, pk):
-    department = get_object_or_404(Department, pk=pk)
-
-    if request.method == 'POST':
+def update_department(request, id):
+    department = get_object_or_404(Department, pk=id)
+    if request.method == "POST":
         form = DepartmentForm(request.POST, instance=department)
         if form.is_valid():
             form.save()
-            return redirect('department_list')  # Redirect to department list page after editing
+            return redirect('department_list')
     else:
         form = DepartmentForm(instance=department)
-
-    return render(request, 'update_department.html', {'form': form})
+    return render(request, 'update_department.html', {'form': form, 'department': department})
 
 @login_required
-def delete_department(request, pk):
-    department = get_object_or_404(Department, pk=pk)
-    department.delete()
-    return JsonResponse({'success': True})
+def delete_department(request, id):
+    department = get_object_or_404(Department, id=id)
+    if request.method == 'POST':
+        department.delete()
+        return redirect('department_list')
+
+
+    return redirect('department_list')
 
 
 @login_required
@@ -179,25 +181,27 @@ def staff_list(request):
     return render(request, 'staff_list.html', context)
 
 @login_required
-def update_staff(request, pk):
-    staff = get_object_or_404(Staff, pk=pk)
-    if request.method == 'POST':
+def update_staff(request, id):
+    staff = get_object_or_404(Staff, pk=id)
+    if request.method == "POST":
         form = StaffForm(request.POST, instance=staff)
         if form.is_valid():
             form.save()
             return redirect('staff_list')
     else:
-        form = FacultyForm(instance=staff)
-    context = {'form': form,
-               'staff': staff}
-    return render(request, 'edit_faculty.html', context)
+        form = StaffForm(instance=staff)
+    return render(request, 'update_staff.html', {'form': form, 'staff': staff})
+
 
 @login_required
-def delete_staff(request, pk):
-    staff = get_object_or_404(Staff, pk=pk)
-    staff.delete()
-    return JsonResponse({'success': True})
+def delete_staff(request, id):
+    staff = get_object_or_404(Staff, id=id)
+    if request.method == 'POST':
+        staff.delete()
+        return redirect('staff_list')
 
+
+    return redirect('staff_list')
 
 
 @login_required
@@ -210,7 +214,20 @@ def add_staff_document(request):
     if request.method == 'POST':
         form = AddStaffDocumentForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            subject = form.cleaned_data['subject']
+            department = form.cleaned_data['department']
+            staff = form.cleaned_data['staff']
+            campus = form.cleaned_data['campus']
+
+            # Handle multiple file uploads
+            for file in request.FILES.getlist('file_upload'):
+                document = AddStaffDocument.objects.create(
+                    subject=subject,
+                    department=department,
+                    staff=staff,
+                    campus=campus,
+                    file_upload=file
+                )
             return redirect(request.path)
     else:
         form = AddStaffDocumentForm()
@@ -235,7 +252,7 @@ def add_faculty_document(request):
     else:
         form = AddFacultyDocumentForm()
 
-    recent_document = AddFacultyDocument.objects.order_by('-date_added')
+    recent_document = AddFacultyDocument.objects.order_by('-date_added')[:10]
     departments = Department.objects.all()
     campuses = Campus.objects.all()
     faculties = Faculty.objects.all()

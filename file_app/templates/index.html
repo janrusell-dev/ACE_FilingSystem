@@ -142,8 +142,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     var customColors = [
-        'rgba(105, 171, 198, 0.8)',  // Light Blue
-        'rgba(225, 118, 109, 0.8)',  // Salmon
+        'rgba(105, 171, 198, 0.8)',
+        'rgba(225, 118, 109, 0.8)',
     ];
 
     var ctx = document.getElementById('documentsChart').getContext('2d');
@@ -208,7 +208,7 @@
                             weight: 'bold'
                         },
                         callback: function (value) {
-                            return value.toLocaleString(); // Format ticks as comma-separated numbers
+                            return value.toLocaleString();
                         }
                     }
                 }
@@ -226,6 +226,7 @@
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+
 </style>
 {% endblock content %}
 

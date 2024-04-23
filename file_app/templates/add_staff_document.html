@@ -1,18 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
-<head>
-  <style>
-    img.scanned {
-      height: 200px; /** Sets the display size */
-      margin-right: 12px;
-  }
-
-  div#images {
-      margin-top: 20px;
-  }
-  </style>
-</head>
 {% block content %}
+
 <div class="container-fluid">
     <!-- Page Heading -->
     <h1 class="h3 mb-2 text-gray-800">Add Staff Document</h1>
@@ -20,15 +9,11 @@
            <div class="card shadow mb-4">
                 <div class="card-header py-3">
         <!-- Button trigger modal -->
-    <button button type="button" class="btn btn-dark" data-toggle="modal" data-target="#addStaffModal">
+    <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#addStaffModal">
       <i class="fas fa-plus"> Add Staff Document</i>
         </button>
-        <button id="scanButton" class="btn btn-dark" onclick="scanToJpg();">
-            <i class="fas fa-qrcode">Scan</i>
-        </button>
         <hr>
-
-        <h2>Recently Added Staff Documents</h2>
+        <h3>Recently Added Staff Documents</h2>
         <div class="list-group" style="max-height: 300px; overflow-y: auto;">
               {% for document in recent_document %}
            <a href="{% url 'staff_archives_list' %}" class="list-group-item list-group-item-action">
@@ -36,9 +21,7 @@
             </a>
             {% endfor %}
           </div>
-
-
-<!-- Modal -->
+            <!-- Modal -->
         <div class="modal fade" id="addStaffModal" tabindex="-1" role="dialog" aria-labelledby="addStaffModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                  <div class="modal-content">
@@ -103,7 +86,6 @@
 </div>
 </div>
 </div>
-
 <script>
   $(document).ready(function () {
     $("#addStaffForm").submit(function (e) {
@@ -128,75 +110,4 @@
     });
   });
 </script>
-<script src="https://cdn.asprise.com/scannerjs/scanner.js" type="text/javascript"></script>
-<script>
-  //
-  // Please read scanner.js developer's guide at: http://asprise.com/document-scan-upload-image-browser/ie-chrome-firefox-scanner-docs.html
-  //
-
-  /** Initiates a scan */
-  function scanToJpg() {
-      scanner.scan(displayImagesOnPage,
-              {
-                  "output_settings": [
-                      {
-                          "type": "return-base64",
-                          "format": "jpg"
-                      }
-                  ]
-              }
-      );
-  }
-
-  /** Processes the scan result */
-  function displayImagesOnPage(successful, mesg, response) {
-      if(!successful) { // On error
-          console.error('Failed: ' + mesg);
-          return;
-      }
-
-      if(successful && mesg != null && mesg.toLowerCase().indexOf('user cancel') >= 0) { // User cancelled.
-          console.info('User cancelled');
-          return;
-      }
-
-      var scannedImages = scanner.getScannedImages(response, true, false); // returns an array of ScannedImage
-      for(var i = 0; (scannedImages instanceof Array) && i < scannedImages.length; i++) {
-          var scannedImage = scannedImages[i];
-          processScannedImage(scannedImage);
-      }
-
-      var scannedImages = scanner.getScannedImages(response, true, false); // returns an array of ScannedImage
-      for(var i = 0; (scannedImages instanceof Array) && i < scannedImages.length; i++) {
-          var scannedImage = scannedImages[i];
-          processScannedImage(scannedImage);
-      }
-
-      // Create a download link for the scanned image
-      if (imagesScanned.length > 0) {
-          var downloadLink = document.createElement('a');
-          downloadLink.href = imagesScanned[0].src; // Assuming only one image scanned
-          downloadLink.download = 'scanned_image.jpg';
-          downloadLink.click();
-      }
-  }
-
-  /** Images scanned so far. */
-  var imagesScanned = [];
-
-  /** Processes a ScannedImage */
-  function processScannedImage(scannedImage) {
-      imagesScanned.push(scannedImage);
-      var elementImg = scanner.createDomElementFromModel( {
-          'name': 'img',
-          'attributes': {
-              'class': 'scanned',
-              'src': scannedImage.src
-          }
-      });
-      document.getElementById('images').appendChild(elementImg);
-  }
-
-</script>
-
 {% endblock %}

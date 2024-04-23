@@ -8,16 +8,16 @@ urlpatterns = [
     path('', views.index, name='index'),
 
     path('department-list', views.department_list, name='department_list'),
-    path('department/<int:pk>/update/', views.update_department, name='update_department'),
-    path('department/<int:pk>delete/', views.delete_department, name='delete_department'),
+    path('department/<int:id>/update', views.update_department, name='update_department'),
+    path('department/<int:id>/delete', views.delete_department, name='delete_department'),
 
     path('faculty-list', views.faculty_list, name='faculty_list'),
-    path('faculty/<int:pk>/update', views.update_faculty, name='edit_faculty'),
-    path('faculty/<int:pk>/delete', views.delete_faculty, name='delete_faculty'),
+    path('faculty/<int:id>/update', views.update_faculty, name='update_faculty'),
+    path('faculty/<int:id>/delete', views.delete_faculty, name='delete_faculty'),
 
     path('staff-list', views.staff_list, name='staff_list'),
-    path('staff/<int:pk>/update', views.update_staff, name='update_staff'),
-    path('staff/<int:pk>/delete', views.delete_staff, name='delete_staff'),
+    path('staff/<int:id>/update', views.update_staff, name='update_staff'),
+    path('staff/<int:id>/delete', views.delete_staff, name='delete_staff'),
 
     path('faculty/archives-list', views.faculty_archives_list, name='faculty_archives_list'),
     path('staff/archives-list', views.staff_archives_list, name='staff_archives_list'),
