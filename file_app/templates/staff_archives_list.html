@@ -37,54 +37,67 @@
                             <td>{{ doc.department.name }}</td>
                             <td>{{ doc.campus.name }}</td>
                             <td>
+
                                 <button class="btn btn-secondary btn-sm archive-faculty-btn" data-toggle="modal" data-target="#fileModal{{ doc.id }}">
                                     <i class="fas fa-eye"></i> View
                                 </button>
-                       <!-- Modal -->
-                <div class="modal fade" id="fileModal{{ doc.id }}" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg" role="document">
-                       <div class="modal-content">
-                          <div class="modal-header">
-                      <h5 class="modal-title" id="fileModalLabel">Subject: {{ doc.subject }}
-                     <br>Name: {{ doc.staff }}
-                    <br>Department: {{ doc.department.name }}
-                         <br>Campus: {{ doc.staff.campus.name }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                           <span aria-hidden="true">&times;</span>
-                              </button>
-                           </div>
-                        <div class="modal-body">
-                   <!-- If file_upload exists and has a file associated -->
-                {% if doc.file_upload and doc.file_upload.url %}
-            {% if doc.file_upload.url|slice:'-4:' == '.pdf' %}
-                  <!-- If PDF, embed using object tag -->
-            <object data="{{ doc.file_upload.url }}" type="application/pdf" width="100%" height="500px">
-                 <p>Your browser does not support PDFs. <a href="{{ doc.file_upload.url }}">Download PDF</a> instead.</p>
-                 </object>
-            {% else %}
-                  <!-- If image, display using img tag and provide download link -->
-         <img src="{{ doc.file_upload.url }}" class="img-fluid" alt="{{ doc.subject }}">
-            <div>
-                 <br>
-              <a href="{{ doc.file_upload.url }}" download="{{ doc.file_upload.name }}">Download</a>
-              </div>
-            {% endif %}
-        <div class="modal-footer">
-           {% if doc.file_upload.url|slice:'-4:' == '.pdf' %}
-        <!-- If PDF, show print button -->
-              <button type="button" class="btn btn-primary" onclick="printPDF('{{ doc.file_upload.url }}')">Print</button>
-                  {% endif %}
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                {% else %}
-                    <!-- Handle case where file_upload is empty -->
-                        <p>No file uploaded.</p>
-                            {% endif %}
-                         </div>
-                            </div>
+                    <!-- Modal -->
+                    <div class="modal fade" id="fileModal{{ doc.id }}" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="fileModalLabel">Subject: {{ doc.subject }}</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
                                 </div>
-                            </td>
-                        </tr>
+                                <div class="modal-body">
+                                    {% if doc.files.count > 1 %}
+                                    <p>Name: {{ doc.staff }}</p>
+                                    <p>Department: {{ doc.department.name }}</p>
+                                    <p>Campus: {{ doc.staff.campus.name }}</p>
+                                    <p>File(s): {{ doc.files.count }}</p>
+                                     <!-- Image carousel -->
+                             <div id="imageCarousel{{ doc.id }}" class="carousel slide" data-ride="carousel">
+                            <div class="carousel-inner">
+                                {% for file in doc.files.all %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <img src="{{ file.file.url }}" alt="{{ doc.subject }}" class="d-block w-100">
+                                <div class="carousel-caption d-none d-md-block">
+                                    <h5 id="fileName{{ doc.id }}">file_name: {{ file.file.name }}</h5>
+                                    <!-- Add other details if needed -->
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <a class="carousel-control-prev" href="#imageCarousel{{ doc.id }}" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#imageCarousel{{ doc.id }}" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+                {% else %}
+                     <p>Name: {{ doc.staff }}</p>
+                     <p>Department: {{ doc.department.name }}</p>
+                     <p>Campus: {{ doc.staff.campus.name }}</p>
+                     <p>File(s): {{ doc.files.count }}</p>
+                    <!-- Single image -->
+                    {% for file in doc.files.all %}
+                        <img src="{{ file.file.url }}" alt="{{ doc.subject }}" class="img-fluid">
+                    {% endfor %}
+                {% endif %}
+                <!-- Print button/link -->
+                <div class="modal-footer">
+                    <a href="#" onclick="printImages('{{ doc.id }}')">Print Attachment</a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+                   </div>
+                 </div>
+                </div>
+                    </div>
                         {% endfor %}
                         <!-- Add more rows as needed -->
                     </tbody>
@@ -93,12 +106,97 @@
         </div>
     </div>
 </div>
+<style>
+    .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+
+    .thumbnail-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .thumbnail-container img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    .modal-body {
+        max-height: calc(100vh - 150px); /* Adjust as needed */
+        overflow-y: auto;
+    }
+
+    .carousel-item img {
+        max-height: calc(100vh - 200px); /* Adjust as needed */
+        max-width: 100%;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .carousel-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 10px;
+    }
+
+    .carousel-caption h5 {
+        margin: 0;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
 <script>
-    function printPDF(pdfUrl) {
-        var win = window.open(pdfUrl, '_blank');
-        win.focus();
-        win.print();
+    function printImages(docId) {
+        // Hide carousel controls, file name, and captions
+        $('#imageCarousel' + docId + ' .carousel-control-prev').hide();
+        $('#imageCarousel' + docId + ' .carousel-control-next').hide();
+        $('#fileName' + docId).hide();
+        $('#imageCarousel' + docId + ' .carousel-caption').hide();
+
+        // Create a new window for printing
+        var printWindow = window.open('', '_blank');
+        var imageCarousel = document.getElementById('imageCarousel' + docId);
+
+        // Generate HTML content for printing
+        var htmlContent = '<html><head><style>@media print { body { margin: 0; padding: 0; text-align: center; } img { max-width: 100%; max-height: 100vh; margin-bottom: 20px; } }</style></head><body>';
+
+        // Iterate through carousel items and include only images
+        $('#imageCarousel' + docId + ' .carousel-item').each(function() {
+            var imgSrc = $(this).find('img').attr('src');
+            htmlContent += '<img src="' + imgSrc + '">';
+        });
+
+        htmlContent += '</body></html>';
+
+        // Write HTML content to the print window
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+
+        // Show carousel controls, file name, and captions after printing
+        $('#imageCarousel' + docId + ' .carousel-control-prev').show();
+        $('#imageCarousel' + docId + ' .carousel-control-next').show();
+        $('#fileName' + docId).show();
+        $('#imageCarousel' + docId + ' .carousel-caption').show();
+
+        // Focus and print immediately after content is loaded
+        printWindow.onload = function() {
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        };
     }
 </script>
+
 <!-- /.container-fluid -->
 {% endblock %}

@@ -22,10 +22,8 @@ urlpatterns = [
     path('faculty/archives-list', views.faculty_archives_list, name='faculty_archives_list'),
     path('staff/archives-list', views.staff_archives_list, name='staff_archives_list'),
 
-    path('create/staff-documents', views.add_staff_document, name='add_staff_documents'),
-    path('create/faculty-documents', views.add_faculty_document, name='add_faculty_documents'),
-
-
+    path('add/staff-documents', views.add_staff_document, name='add_staff_documents'),
+    path('add/faculty-documents', views.add_faculty_document, name='add_faculty_documents'),
 
 
 ]

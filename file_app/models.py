@@ -57,9 +57,22 @@ class Staff(models.Model):
 
 
 
-class AddFacultyDocument(models.Model):
+class StaffArchives(models.Model):
     subject = models.TextField()
-    file_upload = models.FileField(upload_to='files/', null=True)
+    date_added = models.DateField(default=timezone.now)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE, default=None)
+    campus = models.ForeignKey(Campus, on_delete=models.CASCADE)
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.subject} - {self.staff} - {self.date_added}"
+class StaffArchivesFile(models.Model):
+    archives = models.ForeignKey(StaffArchives, on_delete=models.CASCADE, related_name='files')
+    file = models.FileField(upload_to='staff_archives')
+
+
+class FacultyArchives(models.Model):
+    subject = models.TextField()
     date_added = models.DateField(default=timezone.now)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, default=None)
     campus = models.ForeignKey(Campus, on_delete=models.CASCADE)
@@ -68,30 +81,6 @@ class AddFacultyDocument(models.Model):
     def __str__(self):
         return f"{self.subject} - {self.faculty} - {self.date_added}"
 
-class AddStaffDocument(models.Model):
-    subject = models.TextField()
-    file_upload = models.FileField(upload_to='files/', null=True)
-    date_added = models.DateField(default=timezone.now)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, default=None)
-    campus = models.ForeignKey(Campus, on_delete=models.CASCADE)
-    staff = models.ForeignKey(Staff, on_delete=models.CASCADE)
-
-
-    def __str__(self):
-        return f"{self.subject} - {self.staff} - {self.date_added}"
-
-
-class AddStaffDocImage(models.Model):
-    staff_doc = models.ForeignKey(AddStaffDocument, default=None, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='scans/')
-
-    def __str__(self):
-        return self.staff_doc.subject
-
-
-
-
-
-
-
-
+class FacultyArchivesFile(models.Model):
+    archives = models.ForeignKey(FacultyArchives, on_delete=models.CASCADE, related_name='files')
+    file = models.FileField(upload_to='faculty_archives')

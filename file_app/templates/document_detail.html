@@ -1,0 +1,12 @@
+<!-- document_detail.html -->
+<h1>{{ object.title }}</h1>
+<p>{{ object.content }}</p>
+
+<h3>Images</h3>
+<ul>
+    {% for image in images %}
+        <p><img src="{{ image.image.url }}" alt="Image"></p>
+    {% empty %}
+        <p>No images found.</p>
+    {% endfor %}
+</ul>

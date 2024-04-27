@@ -41,7 +41,6 @@ INSTALLED_APPS = [
 
     'file_app.apps.FileAppConfig',
     'multiupload',
-    'reportlab',
 
 
 ]
