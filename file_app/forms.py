@@ -17,9 +17,6 @@ class StaffForm(forms.ModelForm):
         model = Staff
         fields = ['first_name', 'middle_name', 'last_name',  'suffix_name', 'department', 'campus']
 
-
-
-
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=100)
     password = forms.CharField(widget=forms.PasswordInput)
